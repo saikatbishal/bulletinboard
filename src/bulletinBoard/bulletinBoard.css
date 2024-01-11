@@ -7,6 +7,9 @@
   margin-bottom: 10px;
   max-width: 200px;
 }
+.pinned{
+  background-color: #e2e2e2;
+}
 .sticky-note>.buttons{
   display: flex;
   justify-content: space-between;
@@ -67,13 +70,16 @@ button {
   right: 5px;
   cursor: move;
 }
+.drag-handle-disabled {
+  cursor: default;
+}
 
 .input-popup>textarea{
   font-size: 1.2rem;
   padding: 2px 10px;
   border: none;
   height: 3rem;
-  resize: none;
+  /* resize: none; */
 }
 
 textarea:focus{
@@ -83,8 +89,11 @@ textarea:focus{
 .add-note-button {
   margin-bottom: 10px;
   padding: 8px;
+  position: absolute;
+  right: 10px;
+  margin: 20px;
   cursor: pointer;
-  background-color: rgb(0, 174, 0);
+  background-color: rgb(138, 138, 138);
   border: none;
   border-radius: 4px;
   font-size: 1.5rem;
@@ -93,4 +102,8 @@ textarea:focus{
 
 .add-note-button:hover {
   background-color: #009257;
+}
+.pin-notes:hover{
+  background-color: #70ffc6;
+  cursor: pointer;
 }
