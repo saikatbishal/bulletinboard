@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import "./bulletinBoard.css";
 
 const BulletinBoard = () => {
+  if(localStorage.getItem("notes") === null) {
+    localStorage.setItem("notes", JSON.stringify([]));
+  }
   const initialNotes = localStorage.getItem("notes") || [];
   const [notes, setNotes] = useState([...JSON.parse(initialNotes)] || []);
   const [showInputPopup, setShowInputPopup] = useState(false);
