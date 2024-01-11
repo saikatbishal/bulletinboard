@@ -2,17 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import "./bulletinBoard.css";
 
 const BulletinBoard = () => {
-  const [notes, setNotes] = useState([
-    {
-      id: 1,
-      isDraggable: true,
-      content:
-        "lorem ipsum dolor sit amet it necter heck ameshe Hottest Trend in Learning! Introducing our Brand New Course,Understanding PsychologyExplore humanbehavior biologyand cognition. Get foundational insights for real-world applications!Topics to be Covered:🪄🖊 What is Mental health🖊 Scopes and Arena under Psycholog🖊 Laws and Regulations Acts in Mental Health Field🖊 How to start a venture and Practice🖊 Counsellor skills🖊 Ethics & Guidelines in Counselling🖊 Brain, Neurons and Neurotransmitters to Behaviors",
-      x: 100,
-      y: 100,
-      isEditing: false,
-    },
-  ]);
+  const initialNotes = localStorage.getItem("notes")||[];
+const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
   const [showInputPopup, setShowInputPopup] = useState(false);
   const [newNoteContent, setNewNoteContent] = useState("");
 
@@ -36,23 +27,27 @@ const BulletinBoard = () => {
   // }
   const saveNote = () => {
     if (newNoteContent.trim() !== "") {
-      setNotes([
-        ...notes,
-        {
-          id: Date.now(),
-          content: newNoteContent,
-          x: Math.floor(Math.random() * 200),
-          y: Math.floor(Math.random() * 200),
-          isDraggable: true,
-        },
-      ]);
+      const newNote = {
+        id: Date.now(),
+        content: newNoteContent,
+        x: Math.floor(Math.random() * 200),
+        y: Math.floor(Math.random() * 200),
+        isDraggable: true,
+      };
+
+      setNotes([...notes, newNote]);
       setNewNoteContent("");
       setShowInputPopup(false);
+
+      // Save notes to local storage
+      const updatedNotes = [...notes, newNote];
+      localStorage.setItem("notes", JSON.stringify(updatedNotes));
     }
   };
 
   const deleteNote = (id) => {
     setNotes(notes.filter((note) => note.id !== id));
+    localStorage.setItem("notes", JSON.stringify(notes.filter((note) => note.id !== id)));
   };
 
   const handleMouseDown = (e, id) => {
@@ -91,7 +86,9 @@ const BulletinBoard = () => {
 
     document.addEventListener("mousemove", handleMouseMoveRef.current);
     document.addEventListener("mouseup", handleMouseUpRef.current);
+    localStorage.setItem("notes", JSON.stringify(notes));
   };
+  
   const handlePin = (e, id) => {
     const pinnedNote = notes.find((note) => note.id === id);
     pinnedNote.isDraggable = !pinnedNote.isDraggable;
@@ -99,6 +96,7 @@ const BulletinBoard = () => {
       const updatedNotes = notes.filter((note) => note.id !== id);
       setNotes([pinnedNote, ...updatedNotes]);
     }
+    localStorage.setItem("notes", JSON.stringify(notes));
   };
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
