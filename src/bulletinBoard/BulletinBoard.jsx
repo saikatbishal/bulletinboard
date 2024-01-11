@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import "./bulletinBoard.css";
 
 const BulletinBoard = () => {
-  const initialNotes = localStorage.getItem("notes")||[];
-const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
+  const initialNotes = localStorage.getItem("notes") || [];
+  const [notes, setNotes] = useState([...JSON.parse(initialNotes)] || []);
   const [showInputPopup, setShowInputPopup] = useState(false);
   const [newNoteContent, setNewNoteContent] = useState("");
 
@@ -14,17 +14,6 @@ const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
     setShowInputPopup(true);
   };
 
-  // const editNote = (e,id) => {
-  //   const note = notes.find((note) => note.id === id);
-  //   if(!note.isDraggable){
-  //     return;
-  //   }
-  //   note.isEditing = true;
-  //   const updatedNotes = notes.filter((note) => note.id !== id);
-  //   setNotes(updatedNotes);
-  //   setShowInputPopup(true);
-  //   setNewNoteContent(note.content);
-  // }
   const saveNote = () => {
     if (newNoteContent.trim() !== "") {
       const newNote = {
@@ -33,6 +22,7 @@ const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
         x: Math.floor(Math.random() * 200),
         y: Math.floor(Math.random() * 200),
         isDraggable: true,
+        isEditing: false,
       };
 
       setNotes([...notes, newNote]);
@@ -47,11 +37,23 @@ const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
 
   const deleteNote = (id) => {
     setNotes(notes.filter((note) => note.id !== id));
-    localStorage.setItem("notes", JSON.stringify(notes.filter((note) => note.id !== id)));
+    localStorage.setItem(
+      "notes",
+      JSON.stringify(notes.filter((note) => note.id !== id))
+    );
   };
-
+  const handleEdit = (id) => {
+    if (!notes.find((note) => note.id === id).isDraggable) {
+      return;
+    }
+    setNotes(
+      notes.map((note) =>
+        note.id === id ? { ...note, isEditing: true } : note
+      )
+    );
+  };
   const handleMouseDown = (e, id) => {
-    if(!notes.find((note) => note.id === id).isDraggable){
+    if (!notes.find((note) => note.id === id).isDraggable) {
       return;
     }
     const startX = e.clientX;
@@ -66,8 +68,8 @@ const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
       const updatedY = start.y + deltaY;
 
       // Ensure the note stays within the screen boundaries
-      const maxX = window.innerWidth; 
-      const maxY = window.innerHeight ; // Adjust the value based on your preference
+      const maxX = window.innerWidth;
+      const maxY = window.innerHeight; // Adjust the value based on your preference
 
       const boundedX = Math.max(0, Math.min(updatedX, maxX + 20));
       const boundedY = Math.max(0, Math.min(updatedY, maxY + 20));
@@ -88,7 +90,7 @@ const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
     document.addEventListener("mouseup", handleMouseUpRef.current);
     localStorage.setItem("notes", JSON.stringify(notes));
   };
-  
+
   const handlePin = (e, id) => {
     const pinnedNote = notes.find((note) => note.id === id);
     pinnedNote.isDraggable = !pinnedNote.isDraggable;
@@ -123,33 +125,65 @@ const [notes, setNotes] = useState([...JSON.parse(initialNotes)]||[]);
         </div>
       )}
       <div className="parent">
-        {notes.map((note) => (
-         
+        {notes.map((note) =>
+          !note.isEditing ? (
             <div
-            key={note.id}
-            className={`sticky-note ${note.isDraggable ? "" : "pinned"}`}
-            style={{ transform: `translate(${note.x}px, ${note.y}px)` }}
-          >
-            <div className="buttons">
-              <button
-                className="delete-icon"
-                onClick={() => deleteNote(note.id)}
-              >
-                &#x2716;
-              </button>
-              <button className="pin-notes" onClick={(e)=>handlePin(e,note.id)}>📌</button>
+              key={note.id}
+              className={`sticky-note ${note.isDraggable ? "" : "pinned"}`}
+              style={{ transform: `translate(${note.x}px, ${note.y}px)` }}
+            >
+              <div className="buttons">
+                <button
+                  className="delete-icon"
+                  onClick={() => deleteNote(note.id)}
+                >
+                  &#x2716;
+                </button>
+                <button
+                  className="pin-notes"
+                  onClick={(e) => handlePin(e, note.id)}
+                >
+                  📌
+                </button>
 
-              <button
-                className={`drag-icon${note.isDraggable ? "" : "-disabled"}`}
-                onMouseDown={(e) => handleMouseDown(e, note.id)}
-              >
-                &#x2630;
-              </button>
+                <button
+                  className={`drag-icon${note.isDraggable ? "" : "-disabled"}`}
+                  onMouseDown={(e) => handleMouseDown(e, note.id)}
+                >
+                  &#x2630;
+                </button>
+              </div>
+              <div className="content" onClick={() => handleEdit(note.id)}>
+                {note.content}
+              </div>
             </div>
-            <div className="content">{note.content}</div>
-            
-          </div>
-        ))}
+          ) : (
+            <textarea
+              className="sticky-note"
+              style={{ transform: `translate(${note.x}px, ${note.y}px)` }}
+              value={note.content}
+              onChange={(e) => {
+                setNotes(
+                  notes.map((n) =>
+                    n.id === note.id ? { ...n, content: e.target.value } : n
+                  )
+                );
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  setNotes(
+                    notes.map((n) =>
+                      n.id === note.id
+                        ? { ...n, isEditing: false, content: e.target.value }
+                        : n
+                    )
+                  );
+                  localStorage.setItem("notes", JSON.stringify(notes.map(n => ({...n, isEditing: false}))));
+                }
+              }}
+            />
+          )
+        )}
       </div>
     </div>
   );

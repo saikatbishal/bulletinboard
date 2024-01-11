@@ -19,6 +19,8 @@
 
 .sticky-note>.content{
   position: relative;
+  font-size: 2rem;
+  font-family: 'Roboto', sans-serif;
 }
 
 .parent{
@@ -37,7 +39,9 @@ button {
   border: none;
   border-radius: 2px;
 }
-  
+textarea.sticky-note{
+  font-size: 2rem;
+}
 .input-popup{
   border: 1px solid #979797;
   width: max-content;
