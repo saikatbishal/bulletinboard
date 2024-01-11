@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./bulletinBoard.css";
-import { isEditable } from "@testing-library/user-event/dist/utils";
 
 const BulletinBoard = () => {
   const [notes, setNotes] = useState([
@@ -24,17 +23,17 @@ const BulletinBoard = () => {
     setShowInputPopup(true);
   };
 
-  const editNote = (e,id) => {
-    const note = notes.find((note) => note.id === id);
-    if(!note.isDraggable){
-      return;
-    }
-    note.isEditing = true;
-    const updatedNotes = notes.filter((note) => note.id !== id);
-    setNotes(updatedNotes);
-    setShowInputPopup(true);
-    setNewNoteContent(note.content);
-  }
+  // const editNote = (e,id) => {
+  //   const note = notes.find((note) => note.id === id);
+  //   if(!note.isDraggable){
+  //     return;
+  //   }
+  //   note.isEditing = true;
+  //   const updatedNotes = notes.filter((note) => note.id !== id);
+  //   setNotes(updatedNotes);
+  //   setShowInputPopup(true);
+  //   setNewNoteContent(note.content);
+  // }
   const saveNote = () => {
     if (newNoteContent.trim() !== "") {
       setNotes([
@@ -72,8 +71,8 @@ const BulletinBoard = () => {
       const updatedY = start.y + deltaY;
 
       // Ensure the note stays within the screen boundaries
-      const maxX = window.innerWidth - 200; // Adjust the value based on your preference
-      const maxY = window.innerHeight - 200; // Adjust the value based on your preference
+      const maxX = window.innerWidth; 
+      const maxY = window.innerHeight ; // Adjust the value based on your preference
 
       const boundedX = Math.max(0, Math.min(updatedX, maxX + 20));
       const boundedY = Math.max(0, Math.min(updatedY, maxY + 20));
@@ -127,8 +126,8 @@ const BulletinBoard = () => {
       )}
       <div className="parent">
         {notes.map((note) => (
-          !note.isEditing?
-            (<div
+         
+            <div
             key={note.id}
             className={`sticky-note ${note.isDraggable ? "" : "pinned"}`}
             style={{ transform: `translate(${note.x}px, ${note.y}px)` }}
@@ -151,7 +150,7 @@ const BulletinBoard = () => {
             </div>
             <div className="content">{note.content}</div>
             
-          </div>):<input value={note.content} style={{ transform: `translate(${note.x}px, ${note.y}px)` }} />
+          </div>
         ))}
       </div>
     </div>
